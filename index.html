@@ -12,36 +12,50 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 :root[data-theme="dark"]{--bg:#13202d;--ink:#e8f1fa;--card:#ffffff18;--shirt:#e8622c}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;display:flex;flex-direction:column;align-items:center;padding:18px 14px 24px;user-select:none;-webkit-user-select:none}
+body{margin:0;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;display:flex;flex-direction:column;align-items:center;padding:18px 14px 24px;user-select:none;-webkit-user-select:none;overflow-x:hidden}
 h1{font-size:clamp(26px,6vw,40px);margin:0 0 4px;font-weight:400;text-align:center}
 .sub{margin:0 0 10px;opacity:.75;font-size:16px;text-align:center}
-.stats{display:flex;gap:10px;align-items:center;width:min(440px,100%);margin-bottom:6px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:min(440px,100%);margin-bottom:6px}
 .box{background:var(--card);border-radius:14px;padding:8px 14px;font-size:18px;white-space:nowrap}
-.meter{flex:1;height:16px;background:var(--card);border-radius:99px;overflow:hidden}
-.meter i{display:block;height:100%;width:0;background:var(--bar);transition:width .25s}
+.meter{flex:1 1 100%;height:16px;background:var(--card);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--bar);transition:width .2s,background .2s}
 .stage{position:relative;width:min(440px,100%)}
+.shake{animation:shake .5s}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-12px,6px)}40%{transform:translate(10px,-8px)}60%{transform:translate(-8px,-5px)}80%{transform:translate(6px,5px)}}
 svg{width:100%;height:auto;display:block;touch-action:none;cursor:grab;overflow:visible}
 svg:active{cursor:grabbing}
-#bubble{position:absolute;top:2%;left:50%;transform:translateX(-50%) scale(.8);background:#fff;color:#1c2b3a;border-radius:16px;padding:8px 14px;font-size:18px;opacity:0;transition:.18s;pointer-events:none;white-space:nowrap}
+#bubble{position:absolute;top:2%;left:50%;transform:translateX(-50%) scale(.8);background:#fff;color:#1c2b3a;border-radius:16px;padding:8px 14px;font-size:18px;opacity:0;transition:.18s;pointer-events:none;white-space:nowrap;z-index:2}
 #bubble.on{opacity:1;transform:translateX(-50%) scale(1)}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:9}
+#flash.on{animation:fl 0.5s}
+@keyframes fl{0%{opacity:.9}100%{opacity:0}}
 button{font:inherit;font-size:17px;border:0;border-radius:99px;padding:10px 22px;background:var(--ink);color:var(--bg);cursor:pointer;margin-top:6px}
 button:focus-visible{outline:3px solid var(--bar);outline-offset:3px}
-.i,.o,.r{display:none}
-svg[data-m="idle"] .i,svg[data-m="oh"] .o,svg[data-m="rub"] .r{display:inline}
+.i,.o,.r,.f{display:none}
+svg[data-m="idle"] .i,svg[data-m="oh"] .o,svg[data-m="rub"] .r,svg[data-m="fire"] .f{display:inline}
 .st{fill:none;stroke:#2a1d18;stroke-width:6;stroke-linecap:round}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:fk .22s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+@keyframes fk{from{transform:scale(1,.82)}to{transform:scale(.88,1.12)}}
+@media (prefers-reduced-motion:reduce){.fl,.shake{animation:none}}
 </style>
 </head>
 <body>
+<div id="flash"></div>
 <h1>지호형의 대머리 주무르기</h1>
-<p class="sub">머리를 꾹 누르고 문질러 보세요</p>
+<p class="sub">머리를 꾹 누르고 문질러 보세요. 너무 세게 하면…</p>
 <div class="stats">
   <div class="box">주무른 횟수 <b id="cnt">0</b></div>
-  <div class="meter" title="광택" aria-label="광택"><i id="bar"></i></div>
+  <div class="box">폭발 <b id="bm">0</b></div>
+  <div class="meter" title="열" aria-label="열"><i id="bar"></i></div>
 </div>
-<div class="stage">
+<div class="stage" id="stage">
   <div id="bubble" role="status" aria-live="polite"></div>
-  <svg id="s" viewBox="0 0 400 440" data-m="idle" role="img" aria-label="지호형의 대머리">
-    <defs><clipPath id="hc"><ellipse cx="200" cy="210" rx="118" ry="135"/></clipPath></defs>
+  <svg id="s" viewBox="0 -70 400 510" data-m="idle" role="img" aria-label="지호형의 대머리">
+    <defs>
+      <clipPath id="hc"><ellipse cx="200" cy="210" rx="118" ry="135"/></clipPath>
+      <path id="fa" d="M0 0 C-16 -18 -8 -34 -2 -62 C10 -40 20 -24 0 0Z" fill="#ff7a1a"/>
+      <path id="fb" d="M0 0 C-8 -10 -4 -20 0 -34 C6 -22 10 -12 0 0Z" fill="#ffd23f"/>
+    </defs>
     <path d="M40 440 Q60 360 200 350 Q340 360 360 440Z" fill="var(--shirt)"/>
     <rect x="168" y="330" width="64" height="40" rx="14" fill="var(--skin2)"/>
     <g id="head">
@@ -51,6 +65,7 @@ svg[data-m="idle"] .i,svg[data-m="oh"] .o,svg[data-m="rub"] .r{display:inline}
       <path d="M314 192 Q332 222 310 262 Q306 222 296 198Z" fill="#3a2a22"/>
       <ellipse cx="200" cy="210" rx="118" ry="135" fill="var(--skin)"/>
       <g clip-path="url(#hc)">
+        <ellipse id="soot" cx="200" cy="210" rx="118" ry="135" fill="#1a1410" opacity="0"/>
         <ellipse id="blush" cx="200" cy="120" rx="130" ry="90" fill="#ff6b6b" opacity="0"/>
         <ellipse id="glare" cx="150" cy="125" rx="40" ry="20" fill="#fff" opacity=".75" transform="rotate(-25 150 125)" style="transition:transform .3s"/>
       </g>
@@ -72,22 +87,43 @@ svg[data-m="idle"] .i,svg[data-m="oh"] .o,svg[data-m="rub"] .r{display:inline}
         <path class="st" d="M146 256 Q160 236 174 256M226 256 Q240 236 254 256"/>
         <path d="M170 298 Q200 340 230 298 Q200 308 170 298Z" fill="#7a2e2e"/>
       </g>
+      <g class="f">
+        <circle cx="160" cy="250" r="16" fill="#fff"/><circle cx="240" cy="250" r="16" fill="#fff"/>
+        <circle cx="160" cy="250" r="3.5" fill="#2a1d18"/><circle cx="240" cy="250" r="3.5" fill="#2a1d18"/>
+        <path class="st" d="M138 222 L180 206M262 222 L220 206"/>
+        <ellipse cx="200" cy="318" rx="15" ry="19" fill="#7a2e2e"/>
+        <path d="M296 190 Q306 214 296 224 Q286 214 296 190Z" fill="#7fd1ff"/>
+      </g>
+      <path id="frizz" style="display:none" fill="#2a1d18" d="M110 150 L92 110 L125 130 L118 82 L150 112 L150 66 L180 100 L200 58 L220 100 L250 66 L250 112 L282 82 L275 130 L308 110 L290 150Z"/>
+      <g id="fire" style="display:none"><g id="fs">
+        <g transform="translate(140 100) scale(.8)"><g class="fl" style="--d:-.05s"><use href="#fa"/><use href="#fb"/></g></g>
+        <g transform="translate(170 86) scale(1.1)"><g class="fl" style="--d:-.12s"><use href="#fa"/><use href="#fb"/></g></g>
+        <g transform="translate(200 80) scale(1.4)"><g class="fl" style="--d:-.18s"><use href="#fa"/><use href="#fb"/></g></g>
+        <g transform="translate(230 86) scale(1.1)"><g class="fl" style="--d:-.09s"><use href="#fa"/><use href="#fb"/></g></g>
+        <g transform="translate(260 100) scale(.8)"><g class="fl" style="--d:-.15s"><use href="#fa"/><use href="#fb"/></g></g>
+      </g></g>
     </g>
+    <g id="fx"></g>
   </svg>
 </div>
 <button id="reset" type="button">머리 식히기</button>
 
 <script>
 (function(){
-  var svg=document.getElementById('s'),head=document.getElementById('head'),glare=document.getElementById('glare'),
-      blush=document.getElementById('blush'),bub=document.getElementById('bubble'),cnt=document.getElementById('cnt'),bar=document.getElementById('bar');
+  var $=function(i){return document.getElementById(i)};
+  var svg=$('s'),head=$('head'),glare=$('glare'),blush=$('blush'),soot=$('soot'),frizz=$('frizz'),
+      fire=$('fire'),fs=$('fs'),fx=$('fx'),bub=$('bubble'),cnt=$('cnt'),bm=$('bm'),bar=$('bar'),
+      stage=$('stage'),flash=$('flash');
   var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?.4:1;
-  var down=false,last=null,count=0,acc=0,moodT,bubT;
+  var down=false,last=null,count=0,booms=0,acc=0,heat=0,fireOn=false,exploded=false,
+      lastRub=0,shown=-1,moodT,bubT,ring=null,ringT=0,parts=[];
   var st={sx:1,sy:1,r:0},v={sx:0,sy:0,r:0},tg={sx:1,sy:1,r:0};
-  var lines=['아 뭐하냐 ㅋㅋ','시원하다…','거기 말고 ㅋㅋ','광 난다 광 나','야 그만해','…계속해','반사광 조심해','손 따뜻하다'];
-  var marks={10:'슬슬 광이 나기 시작했다',30:'반사광 때문에 눈이 부시다',60:'위성에서도 보입니다',100:'전설의 광택 달성!'};
+  var FIRE=50,BOOM=90,OUT=30;
+  var lines=['아 뭐하냐 ㅋㅋ','시원하다…','거기 말고 ㅋㅋ','광 난다 광 나','야 그만해','…계속해','손 따뜻하다'];
+  var marks={15:'슬슬 광이 난다',30:'눈부셔서 못 보겠다',50:'불붙었다!! 🔥',75:'야 진짜 터진다 터져!!'};
   function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
   function pt(e){var p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+  function mk(tag,attrs){var n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(var k in attrs)n.setAttribute(k,attrs[k]);fx.appendChild(n);return n}
   function mood(m){svg.setAttribute('data-m',m)}
   function say(t){bub.textContent=t;bub.classList.add('on');clearTimeout(bubT);bubT=setTimeout(function(){bub.classList.remove('on')},1700)}
   function aim(e){
@@ -97,40 +133,92 @@ svg[data-m="idle"] .i,svg[data-m="oh"] .o,svg[data-m="rub"] .r{display:inline}
     tg.r=calm*nx*6;
     glare.style.transform='translate('+clamp(p.x-150,-60,100)+'px,'+clamp(p.y-125,-40,110)+'px)';
   }
+  function render(){
+    var g=clamp(heat/BOOM,0,1);
+    bar.style.width=(g*100)+'%';
+    bar.style.background=heat<FIRE?'var(--bar)':heat<75?'#ff7a1a':'#e8281e';
+    blush.setAttribute('opacity',Math.min(.5,heat/130));
+    svg.style.filter=fireOn?'drop-shadow(0 0 28px rgba(255,120,30,.85))':'drop-shadow(0 0 '+Math.round(g*30)+'px rgba(255,236,140,'+(.2+g*.6)+'))';
+    var k=clamp(.8+(heat-FIRE)/(BOOM-FIRE)*.8,.7,1.7);
+    fs.setAttribute('transform','translate(200 100) scale('+k+') translate(-200 -100)');
+  }
+  function ignite(){fireOn=true;fire.style.display='';mood('fire')}
+  function out(){fireOn=false;fire.style.display='none';if(!down)mood('idle')}
+  function boom(){
+    exploded=true;down=false;heat=0;fireOn=false;
+    head.style.display='none';fire.style.display='none';
+    var cols=['#ff4d1a','#ff9f1a','#ffd23f','#fff3b0'];
+    for(var i=0;i<34;i++){
+      var a=Math.random()*6.283,s=3+Math.random()*9,r=4+Math.random()*10;
+      parts.push({x:200,y:200,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,l:1,r:r,
+        el:mk('circle',{cx:200,cy:200,r:r,fill:cols[i%4]})});
+    }
+    ring=mk('circle',{cx:200,cy:200,r:20,fill:'none',stroke:'#ffd23f','stroke-width':10});ringT=1;
+    flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on');
+    stage.classList.remove('shake');void stage.offsetWidth;stage.classList.add('shake');
+    say('펑!!!');booms++;bm.textContent=booms;render();
+    setTimeout(function(){
+      head.style.display='';soot.setAttribute('opacity',.6);frizz.style.display='';
+      exploded=false;mood('oh');say('…머리카락이 생겼다');render();
+      setTimeout(function(){if(!down&&!fireOn)mood('idle')},1200);
+    },1500);
+  }
   function bump(){
     count++;cnt.textContent=count;
-    var g=Math.min(1,count/100);
-    bar.style.width=(g*100)+'%';
-    blush.setAttribute('opacity',Math.min(.45,count/160));
-    svg.style.filter='drop-shadow(0 0 '+Math.round(g*34)+'px rgba(255,236,140,'+(.25+g*.65)+'))';
-    if(marks[count])say(marks[count]);
-    else if(count%8===0)say(lines[Math.floor(Math.random()*lines.length)]);
+    var prev=heat;heat=Math.min(100,heat+1);lastRub=performance.now();
+    for(var k in marks){if(prev<+k&&heat>=+k)say(marks[k])}
+    if(!fireOn&&heat>=FIRE)ignite();
+    if(fireOn&&heat>=BOOM){boom();return}
+    if(count%10===0&&heat<FIRE)say(lines[Math.floor(Math.random()*lines.length)]);
+    render();
   }
   head.addEventListener('pointerdown',function(e){
-    down=true;last=e;svg.setPointerCapture(e.pointerId);mood('oh');aim(e);clearTimeout(moodT);
+    if(exploded)return;
+    down=true;last=e;svg.setPointerCapture(e.pointerId);mood(fireOn?'fire':'oh');aim(e);clearTimeout(moodT);
   });
   svg.addEventListener('pointermove',function(e){
-    if(!down)return;
+    if(!down||exploded)return;
     aim(e);
     var d=Math.hypot(e.clientX-last.clientX,e.clientY-last.clientY);
     last=e;acc+=d;
-    if(d>1.5){mood('rub');clearTimeout(moodT)}
-    while(acc>=90){acc-=90;bump()}
+    if(d>1.5){mood(fireOn?'fire':'rub');clearTimeout(moodT)}
+    while(acc>=60){acc-=60;bump();if(exploded)break}
   });
   function up(){
     if(!down)return;
     down=false;tg.sx=1;tg.sy=1;tg.r=0;glare.style.transform='translate(0,0)';
-    clearTimeout(moodT);moodT=setTimeout(function(){mood('idle')},700);
+    clearTimeout(moodT);moodT=setTimeout(function(){if(!exploded)mood(fireOn?'fire':'idle')},700);
   }
   svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
-  document.getElementById('reset').addEventListener('click',function(){
-    count=0;acc=0;cnt.textContent=0;bar.style.width='0';blush.setAttribute('opacity',0);svg.style.filter='none';say('후… 식었다');
+  $('reset').addEventListener('click',function(){
+    count=0;booms=0;acc=0;heat=0;cnt.textContent=0;bm.textContent=0;
+    soot.setAttribute('opacity',0);frizz.style.display='none';
+    fireOn=false;fire.style.display='none';mood('idle');render();say('후… 식었다');
   });
-  (function loop(){
+  var t0=performance.now();
+  (function loop(t){
+    var dt=Math.min(.1,(t-t0)/1000);t0=t;
+    if(!exploded&&heat>0&&t-lastRub>350){
+      heat=Math.max(0,heat-dt*.8);
+      if(fireOn&&heat<OUT)out();
+      var r=Math.round(heat);if(r!==shown){shown=r;render()}
+    }
     ['sx','sy','r'].forEach(function(k){v[k]+=(tg[k]-st[k])*.2;v[k]*=.78;st[k]+=v[k]});
-    head.setAttribute('transform','translate(200 385) rotate('+st.r+') scale('+st.sx+' '+st.sy+') translate(-200 -385)');
+    var j=fireOn&&!exploded?(Math.random()-.5)*3:0;
+    head.setAttribute('transform','translate(200 385) rotate('+(st.r+j)+') scale('+st.sx+' '+st.sy+') translate(-200 -385)');
+    for(var i=parts.length-1;i>=0;i--){
+      var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.l-=.018;
+      if(p.l<=0){fx.removeChild(p.el);parts.splice(i,1);continue}
+      p.el.setAttribute('cx',p.x);p.el.setAttribute('cy',p.y);
+      p.el.setAttribute('r',p.r*p.l);p.el.setAttribute('opacity',p.l);
+    }
+    if(ring){
+      ringT-=.035;
+      ring.setAttribute('r',20+(1-ringT)*260);ring.setAttribute('opacity',Math.max(0,ringT));
+      if(ringT<=0){fx.removeChild(ring);ring=null}
+    }
     requestAnimationFrame(loop);
-  })();
+  })(performance.now());
 })();
 </script>
 </body>
